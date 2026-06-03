@@ -67,8 +67,8 @@ func ScrapeBooks() ([]models.Book, error) {
 			Price:        parsePrice(priceText),
 			Rating:       ratingToNumber(ratingClass),
 			Availability: availability,
-			ImageURL:     imageURL,
-			ProductURL:   productURL,
+			ImageURL:     buildImageURL(imageURL),
+			ProductURL:   buildProductURL(productURL),
 		}
 
 		books = append(books, book)

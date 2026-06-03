@@ -21,6 +21,12 @@ func main() {
 		log.Fatal(err)
 	}
 
+	err = exporter.SaveCSV(books)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	log.Printf(
 		"%d books exported to JSON",
 		len(books),
