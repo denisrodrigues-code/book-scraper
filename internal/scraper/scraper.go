@@ -1,14 +1,17 @@
 package scraper
 
 import (
-	"fmt"
+	"book-scraper/internal/models"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
 )
 
-func ScrapeTitles() error {
+func ScrapeBooks() ([]models.Book, error) {
+
+	var books []models.Book
 
 	client := &http.Client{
 		Timeout: 10 * time.Second,
@@ -16,12 +19,12 @@ func ScrapeTitles() error {
 
 	req, err := http.NewRequest(
 		"GET",
-		"http://books.toscrape.com/",
+		"https://books.toscrape.com/",
 		nil,
 	)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	req.Header.Set(
@@ -32,7 +35,7 @@ func ScrapeTitles() error {
 	resp, err := client.Do(req)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	defer resp.Body.Close()
@@ -40,19 +43,37 @@ func ScrapeTitles() error {
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	doc.Find("article.product_pod").Each(func(i int, s *goquery.Selection) {
 
-		title, exists := s.Find("h3 a").Attr("title")
+		title, _ := s.Find("h3 a").Attr("title")
 
-		if exists {
-			fmt.Println(title)
+		priceText := s.Find(".price_color").Text()
+
+		ratingClass, _ := s.Find(".star-rating").Attr("class")
+
+		availability := strings.TrimSpace(
+			s.Find(".availability").Text(),
+		)
+
+		imageURL, _ := s.Find("img").Attr("src")
+
+		productURL, _ := s.Find("h3 a").Attr("href")
+
+		book := models.Book{
+			Title:        title,
+			Price:        parsePrice(priceText),
+			Rating:       ratingToNumber(ratingClass),
+			Availability: availability,
+			ImageURL:     imageURL,
+			ProductURL:   productURL,
 		}
 
+		books = append(books, book)
 	})
 
-	return nil
+	return books, nil
 
 }
