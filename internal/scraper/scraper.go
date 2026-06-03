@@ -2,6 +2,7 @@ package scraper
 
 import (
 	"book-scraper/internal/models"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -9,7 +10,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-func ScrapeBooks() ([]models.Book, error) {
+func ScrapePage(urk string) ([]models.Book, error) {
 
 	var books []models.Book
 
@@ -19,7 +20,7 @@ func ScrapeBooks() ([]models.Book, error) {
 
 	req, err := http.NewRequest(
 		"GET",
-		"https://books.toscrape.com/",
+		baseURL,
 		nil,
 	)
 
@@ -36,6 +37,10 @@ func ScrapeBooks() ([]models.Book, error) {
 
 	if err != nil {
 		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
 	defer resp.Body.Close()
