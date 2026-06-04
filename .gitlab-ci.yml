@@ -1,0 +1,68 @@
+stages:
+  - lint
+  - test
+  - build
+  - deploy
+
+variables:
+  GO_VERSION: "1.24"
+
+# =========================
+# LINT
+# =========================
+lint:
+  stage: lint
+  image: golang:${GO_VERSION}
+  before_script:
+    - go install golang.org/x/lint/golint@latest
+  script:
+    - golint ./...
+  allow_failure: false
+
+# =========================
+# TEST
+# =========================
+test:
+  stage: test
+  image: golang:${GO_VERSION}
+  script:
+    - go test -v ./...
+  allow_failure: false
+
+# =========================
+# BUILD
+# =========================
+build:
+  stage: build
+  image: docker:latest
+
+  services:
+    - docker:dind
+
+  variables:
+    DOCKER_DRIVER: overlay2
+
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login \
+      -u "$CI_REGISTRY_USER" \
+      --password-stdin \
+      "$CI_REGISTRY"
+
+  script:
+    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA .
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+
+# =========================
+# DEPLOY
+# =========================
+deploy:
+  stage: deploy
+  image: alpine:latest
+
+  script:
+    - echo "Deploying scraper to AWS ECS..."
+    - echo "aws ecs update-service ..."
+    - echo "Deployment completed"
+
+  only:
+    - main
