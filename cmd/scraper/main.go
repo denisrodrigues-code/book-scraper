@@ -28,7 +28,7 @@ func main() {
 	}
 
 	log.Printf(
-		"%d books exported to JSON",
+		"%d books exported successfully",
 		len(books),
 	)
 }
