@@ -13,7 +13,10 @@ func TestParsePrice(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		result := parsePrice(test.input)
+		result, err := parsePrice(test.input)
+		if err != nil {
+			t.Fatalf("parsePrice returned error: %v", err)
+		}
 
 		if result != test.expected {
 			t.Errorf(

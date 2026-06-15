@@ -3,20 +3,18 @@ package scraper
 import "strings"
 
 func ratingToNumber(class string) int {
-
-	ratings := map[string]int{
-		"One":   1,
-		"Two":   2,
-		"Three": 3,
-		"Four":  4,
-		"Five":  5,
+	switch {
+	case strings.Contains(class, "One"):
+		return 1
+	case strings.Contains(class, "Two"):
+		return 2
+	case strings.Contains(class, "Three"):
+		return 3
+	case strings.Contains(class, "Four"):
+		return 4
+	case strings.Contains(class, "Five"):
+		return 5
+	default:
+		return 0
 	}
-
-	for key, value := range ratings {
-		if strings.Contains(class, key) {
-			return value
-		}
-	}
-
-	return 0
 }
