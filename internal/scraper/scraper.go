@@ -10,7 +10,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-func ScrapePage(urk string) ([]models.Book, error) {
+func ScrapePage(url string) ([]models.Book, error) {
 
 	var books []models.Book
 
@@ -20,7 +20,7 @@ func ScrapePage(urk string) ([]models.Book, error) {
 
 	req, err := http.NewRequest(
 		"GET",
-		baseURL,
+		url,
 		nil,
 	)
 
@@ -67,9 +67,14 @@ func ScrapePage(urk string) ([]models.Book, error) {
 
 		productURL, _ := s.Find("h3 a").Attr("href")
 
+		price, err := parsePrice(priceText)
+		if err != nil {
+			price = 0
+		}
+
 		book := models.Book{
 			Title:        title,
-			Price:        parsePrice(priceText),
+			Price:        price,
 			Rating:       ratingToNumber(ratingClass),
 			Availability: availability,
 			ImageURL:     buildImageURL(imageURL),
