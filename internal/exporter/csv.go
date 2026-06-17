@@ -19,7 +19,6 @@ func SaveCSV(books []models.Book) error {
 	defer file.Close()
 
 	writer := csv.NewWriter(file)
-	defer writer.Flush()
 
 	err = writer.Write([]string{
 		"title",
@@ -54,5 +53,12 @@ func SaveCSV(books []models.Book) error {
 			return err
 		}
 	}
+
+	writer.Flush()
+
+	if err := writer.Error(); err != nil {
+		return err
+	}
+
 	return nil
 }
