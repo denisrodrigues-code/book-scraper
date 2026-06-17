@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -13,10 +12,6 @@ import (
 func ScrapePage(url string) ([]models.Book, error) {
 
 	var books []models.Book
-
-	client := &http.Client{
-		Timeout: 10 * time.Second,
-	}
 
 	req, err := http.NewRequest(
 		"GET",
@@ -33,17 +28,17 @@ func ScrapePage(url string) ([]models.Book, error) {
 		"BookScraper/1.0",
 	)
 
-	resp, err := client.Do(req)
+	resp, err := httpClient.Do(req)
 
 	if err != nil {
 		return nil, err
 	}
 
+	defer resp.Body.Close()
+
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
-
-	defer resp.Body.Close()
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 
@@ -77,8 +72,8 @@ func ScrapePage(url string) ([]models.Book, error) {
 			Price:        price,
 			Rating:       ratingToNumber(ratingClass),
 			Availability: availability,
-			ImageURL:     buildImageURL(imageURL),
-			ProductURL:   buildProductURL(productURL),
+			ImageURL:     buildURL(imageURL),
+			ProductURL:   buildURL(productURL),
 		}
 
 		books = append(books, book)
