@@ -1,14 +1,12 @@
 package scraper
 
-import "strings"
+import "net/url"
 
 const baseURL = "https://books.toscrape.com/"
 
-func buildImageURL(path string) string {
-	path = strings.Replace(path, "../../", "", 1)
-	return baseURL + path
-}
+func buildURL(path string) string {
+	base, _ := url.Parse(baseURL)
+	ref, _ := url.Parse(path)
 
-func buildProductURL(path string) string {
-	return baseURL + path
+	return base.ResolveReference(ref).String()
 }
